@@ -20,17 +20,22 @@ class App extends React.Component {
       upto: 0,
       uptoBackup: 0,
       found: false,
-      timeUp: false
+      timeUp: false,
+      wrongInput: 0
     };
   }
 
   componentDidMount() {
     const { tagType } = this.state;
     let paragraph = "";
+
+    // fetch paragraph from api.
+    // for now taking single paragraph
     fetch("http://www.randomtext.me/api/")
       .then(response => response.json())
       .then(myJson => {
         let para = myJson.text_out;
+        // extract one paragraph
         para = para.split(`<${tagType}>`)[1].split(`</${tagType}>`)[0];
         this.setState({
           words: para.split(" "),
@@ -43,6 +48,8 @@ class App extends React.Component {
 
   rightWrong = (flag, value, upto) => {
     const { currentWord, words, counter, uptoBackup } = this.state;
+    // Go to next word only when the match is true, clearInput, set flag to
+    // found, taking backup of index by adding two more so as to exclude space
     if (flag && value === currentWord) {
       this.setState({
         currentWord: words[counter + 1],
@@ -52,16 +59,24 @@ class App extends React.Component {
         uptoBackup: this.state.upto + 2
       });
     } else if (value === currentWord.slice(0, upto)) {
+      // reset clearInput flag
       this.setState({ found: true, clearInput: false });
     } else {
-      this.setState({ found: false, clearInput: false });
+      // store the wrong input index inorder to display red
+      this.setState({
+        found: false,
+        clearInput: false,
+        wrongInput: this.state.uptoBackup + upto + 1
+      });
     }
     if (upto) {
+      // set upto only if it has defined value
       this.setState({ upto: upto + uptoBackup });
     }
   };
 
   timeUp = value => {
+    // flag to show time up screen
     this.setState({ timeUp: value });
   };
 
@@ -76,7 +91,9 @@ class App extends React.Component {
       upto,
       counter,
       found,
-      timeUp
+      wrongInput,
+      timeUp,
+      uptoBackup
     } = this.state;
     return (
       <div className="App">
@@ -93,14 +110,13 @@ class App extends React.Component {
               alphabets={alphabets}
               counter={counter}
               found={found}
-              clearInput={clearInput}
+              wrongInput={wrongInput}
             />
             <UserInput
               currentWord={currentWord}
               rightWrong={this.rightWrong}
               clearInput={clearInput}
               alphabets={alphabets}
-              upto={upto}
             />
           </>
         )}
