@@ -10,10 +10,14 @@ class App extends React.Component {
     this.state = {
       paragraph: "",
       words: [],
+      alphabets: [],
       currentWord: "",
       counter: 0,
       clearInput: false,
-      tagType: "p"
+      tagType: "p",
+      upto: 0,
+      uptoBackup: 0,
+      found: false
     };
   }
 
@@ -28,32 +32,62 @@ class App extends React.Component {
         this.setState({
           words: para.split(" "),
           currentWord: para.split(" ")[0],
-          paragraph: para
+          paragraph: para,
+          alphabets: para.split("")
         });
       });
   }
 
-  rightWrong = (flag, value) => {
-    const { currentWord, words, counter } = this.state;
+  rightWrong = (flag, value, upto) => {
+    const { currentWord, words, counter, uptoBackup } = this.state;
     if (flag && value === currentWord) {
       this.setState({
         currentWord: words[counter + 1],
         counter: counter + 1,
-        clearInput: true
+        clearInput: true,
+        found: true,
+        uptoBackup: this.state.upto + 2
       });
+    } else if (value === currentWord.slice(0, upto)) {
+      this.setState({ found: true, clearInput: false });
+    } else {
+      this.setState({ found: false, clearInput: false });
+    }
+    if (upto) {
+      this.setState({ upto: upto + uptoBackup });
     }
   };
 
   render() {
-    const { paragraph, words, currentWord, clearInput, tagType } = this.state;
+    const {
+      paragraph,
+      words,
+      currentWord,
+      clearInput,
+      tagType,
+      alphabets,
+      upto,
+      counter,
+      found
+    } = this.state;
     return (
       <div className="App">
         <header className="App-header">TYPERACER</header>
-        <RandomParagraph paragraph={paragraph} tagType={tagType} />
+        <RandomParagraph
+          paragraph={paragraph}
+          tagType={tagType}
+          upto={upto}
+          alphabets={alphabets}
+          counter={counter}
+          found={found}
+          clearInput={clearInput}
+        />
         <UserInput
           currentWord={currentWord}
           rightWrong={this.rightWrong}
           clearInput={clearInput}
+          alphabets={alphabets}
+          upto={upto}
         />
       </div>
     );
