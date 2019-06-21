@@ -2,6 +2,8 @@ import React from "react";
 import logo from "./logo.svg";
 import UserInput from "./Components/UserInput";
 import RandomParagraph from "./Components/RandomParagraph";
+import Timer from "./Components/Timer";
+import Results from "./Components/Results";
 import "./App.css";
 
 class App extends React.Component {
@@ -17,7 +19,8 @@ class App extends React.Component {
       tagType: "p",
       upto: 0,
       uptoBackup: 0,
-      found: false
+      found: false,
+      timeUp: false
     };
   }
 
@@ -58,6 +61,10 @@ class App extends React.Component {
     }
   };
 
+  timeUp = value => {
+    this.setState({ timeUp: value });
+  };
+
   render() {
     const {
       paragraph,
@@ -68,27 +75,35 @@ class App extends React.Component {
       alphabets,
       upto,
       counter,
-      found
+      found,
+      timeUp
     } = this.state;
     return (
       <div className="App">
         <header className="App-header">TYPERACER</header>
-        <RandomParagraph
-          paragraph={paragraph}
-          tagType={tagType}
-          upto={upto}
-          alphabets={alphabets}
-          counter={counter}
-          found={found}
-          clearInput={clearInput}
-        />
-        <UserInput
-          currentWord={currentWord}
-          rightWrong={this.rightWrong}
-          clearInput={clearInput}
-          alphabets={alphabets}
-          upto={upto}
-        />
+        {timeUp ? (
+          <Results counter={counter} />
+        ) : (
+          <>
+            <Timer timeUp={this.timeUp} counter={counter} />
+            <RandomParagraph
+              paragraph={paragraph}
+              tagType={tagType}
+              upto={upto}
+              alphabets={alphabets}
+              counter={counter}
+              found={found}
+              clearInput={clearInput}
+            />
+            <UserInput
+              currentWord={currentWord}
+              rightWrong={this.rightWrong}
+              clearInput={clearInput}
+              alphabets={alphabets}
+              upto={upto}
+            />
+          </>
+        )}
       </div>
     );
   }
